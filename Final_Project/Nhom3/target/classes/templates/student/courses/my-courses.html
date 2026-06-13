@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khóa học của tôi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body{background:#f1f5f9;font-family:'Segoe UI',sans-serif;}
+        .sidebar{width:260px;min-height:100vh;background:linear-gradient(180deg,#1e3a5f,#1d4ed8);position:fixed;top:0;left:0;z-index:100;}
+        .sidebar-brand{padding:1.5rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.1);}
+        .sidebar-brand h5{color:#fff;font-weight:700;margin:0;}
+        .sidebar-brand small{color:#bfdbfe;font-size:.75rem;}
+        .sidebar .nav-link{color:#dbeafe;padding:.65rem 1.2rem;border-radius:8px;margin:2px 8px;font-size:.9rem;}
+        .sidebar .nav-link:hover,.sidebar .nav-link.active{background:rgba(255,255,255,.15);color:#fff;}
+        .sidebar .nav-link i{width:20px;margin-right:8px;}
+        .sidebar-section{color:#93c5fd;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;padding:1rem 1.4rem .3rem;}
+        .main-content{margin-left:260px;min-height:100vh;}
+        .topbar{background:#fff;padding:.75rem 1.5rem;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99;}
+        .content-area{padding:1.5rem;}
+        .course-card{background:#fff;border:none;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);transition:transform .2s;height:100%;}
+        .course-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.1);}
+        .course-thumb{height:120px;border-radius:12px 12px 0 0;background:linear-gradient(135deg,#1d4ed8,#6366f1);display:flex;align-items:center;justify-content:center;font-size:2.5rem;}
+        .course-thumb.completed{background:linear-gradient(135deg,#059669,#10b981);}
+        .progress{height:8px;border-radius:4px;}
+        .btn-primary{background:#1d4ed8;border-color:#1d4ed8;border-radius:8px;}
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <h5><i class="bi bi-mortarboard-fill me-2"></i>OOP-PTIT</h5>
+        <small>👨‍🎓 Học sinh</small>
+    </div>
+    <nav class="nav flex-column pt-2">
+        <span class="sidebar-section">Tổng quan</span>
+        <a class="nav-link" href="/student/dashboard"><i class="bi bi-grid-1x2"></i>Dashboard</a>
+        <span class="sidebar-section">Khóa học</span>
+        <a class="nav-link" href="/student/courses"><i class="bi bi-search"></i>Tìm khóa học</a>
+        <a class="nav-link active" href="/student/my-courses"><i class="bi bi-bookmark-check"></i>Khóa học của tôi</a>
+        <div style="position:absolute;bottom:1rem;width:100%;">
+            <form th:action="@{/logout}" method="post" style="margin:0 8px;">
+                <button type="submit" class="btn w-100 text-start nav-link" style="color:#fca5a5;">
+                    <i class="bi bi-box-arrow-left"></i>Đăng xuất
+                </button>
+            </form>
+        </div>
+    </nav>
+</div>
+
+<div class="main-content">
+    <div class="topbar">
+        <h6 class="mb-0 fw-bold">📚 Khóa học của tôi</h6>
+        <a href="/student/courses" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus me-1"></i>Tìm khóa học mới
+        </a>
+    </div>
+    <div class="content-area">
+        <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle me-2"></i><span th:text="${successMsg}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-4" th:each="enrollment : ${enrollments}">
+                <div class="course-card">
+                    <div class="course-thumb" th:classappend="${enrollment.status.name() == 'COMPLETED'} ? ' completed'">
+                        <span th:if="${enrollment.status.name() == 'COMPLETED'}">🏆</span>
+                        <span th:unless="${enrollment.status.name() == 'COMPLETED'}">📚</span>
+                    </div>
+                    <div class="p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <h6 class="fw-bold mb-0 text-truncate me-2" th:text="${enrollment.course.title}">Khóa học</h6>
+                            <span th:switch="${enrollment.status.name()}">
+                                <span th:case="'ACTIVE'" class="badge bg-primary flex-shrink-0">Đang học</span>
+                                <span th:case="'COMPLETED'" class="badge bg-success flex-shrink-0">Hoàn thành</span>
+                            </span>
+                        </div>
+                        <div class="text-muted small mb-2">
+                            <i class="bi bi-person-workspace me-1"></i>
+                            <span th:text="${enrollment.course.teacher.fullName}">GV</span>
+                        </div>
+                        <!-- Tiến độ -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small text-muted mb-1">
+                                <span>Tiến độ</span>
+                                <span th:text="${enrollment.progressPercent} + '%'">0%</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar"
+                                     th:classappend="${enrollment.status.name() == 'COMPLETED'} ? 'bg-success' : 'bg-primary'"
+                                     th:style="'width:' + ${enrollment.progressPercent} + '%'"></div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a th:href="@{/student/courses/{id}(id=${enrollment.course.id})}"
+                               class="btn btn-primary btn-sm flex-grow-1">
+                                <i class="bi bi-play-circle me-1"></i>
+                                <span th:if="${enrollment.status.name() == 'COMPLETED'}">Xem lại</span>
+                                <span th:unless="${enrollment.status.name() == 'COMPLETED'}">Tiếp tục</span>
+                            </a>
+                            <button class="btn btn-sm btn-outline-danger" onclick="confirmCancel(this)"
+                                    th:data-id="${enrollment.course.id}"
+                                    th:data-title="${enrollment.course.title}">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                        <div class="text-muted mt-2" style="font-size:.75rem;">
+                            <i class="bi bi-calendar me-1"></i>
+                            Đăng ký: <span th:text="${#temporals.format(enrollment.enrolledAt,'dd/MM/yyyy')}">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(enrollments)}" class="col-12 text-center py-5 text-muted">
+                <i class="bi bi-bookmark-x fs-1 d-block mb-2"></i>
+                Bạn chưa đăng ký khóa học nào.
+                <a href="/student/courses" class="d-block mt-2">Khám phá khóa học ngay!</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" style="border-radius:12px;">
+            <div class="modal-header border-0"><h6 class="modal-title fw-bold">Hủy đăng ký?</h6></div>
+            <div class="modal-body pt-0 small">Bạn có chắc muốn hủy đăng ký khóa học <strong id="cancelName"></strong>?</div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Không</button>
+                <form id="cancelForm" method="post">
+                    <button type="submit" class="btn btn-sm btn-danger">Hủy đăng ký</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function confirmCancel(btn) {
+    document.getElementById('cancelName').textContent = btn.dataset.title;
+    document.getElementById('cancelForm').action = '/student/courses/' + btn.dataset.id + '/cancel';
+    new bootstrap.Modal(document.getElementById('cancelModal')).show();
+}
+</script>
+</body>
+</html>

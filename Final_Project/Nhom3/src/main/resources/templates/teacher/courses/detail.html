@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết khóa học - Giáo viên</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body{background:#f1f5f9;font-family:'Segoe UI',sans-serif;}
+        .sidebar{width:260px;min-height:100vh;background:linear-gradient(180deg,#064e3b,#065f46);position:fixed;top:0;left:0;z-index:100;}
+        .sidebar-brand{padding:1.5rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.1);}
+        .sidebar-brand h5{color:#fff;font-weight:700;margin:0;}
+        .sidebar-brand small{color:#a7f3d0;font-size:.75rem;}
+        .sidebar .nav-link{color:#d1fae5;padding:.65rem 1.2rem;border-radius:8px;margin:2px 8px;font-size:.9rem;}
+        .sidebar .nav-link:hover,.sidebar .nav-link.active{background:rgba(255,255,255,.15);color:#fff;}
+        .sidebar .nav-link i{width:20px;margin-right:8px;}
+        .sidebar-section{color:#6ee7b7;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;padding:1rem 1.4rem .3rem;}
+        .main-content{margin-left:260px;min-height:100vh;}
+        .topbar{background:#fff;padding:.75rem 1.5rem;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99;}
+        .content-area{padding:1.5rem;}
+        .card{border:none;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+        .lesson-item{background:#f8fafc;border-radius:8px;padding:.75rem 1rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.75rem;transition:background .2s;}
+        .lesson-item:hover{background:#f0fdf4;}
+        .lesson-num{width:28px;height:28px;border-radius:8px;background:#059669;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0;}
+        .btn-success{background:#059669;border-color:#059669;border-radius:8px;}
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <h5><i class="bi bi-mortarboard-fill me-2"></i>OOP-PTIT</h5>
+        <small>👨‍🏫 Giáo viên</small>
+    </div>
+    <nav class="nav flex-column pt-2">
+        <span class="sidebar-section">Tổng quan</span>
+        <a class="nav-link" href="/teacher/dashboard"><i class="bi bi-grid-1x2"></i>Dashboard</a>
+        <span class="sidebar-section">Quản lý</span>
+        <a class="nav-link active" href="/teacher/courses"><i class="bi bi-journal-bookmark"></i>Khóa học của tôi</a>
+        <a class="nav-link" href="/teacher/courses/create"><i class="bi bi-plus-circle"></i>Tạo khóa học mới</a>
+        <div style="position:absolute;bottom:1rem;width:100%;">
+            <form th:action="@{/logout}" method="post" style="margin:0 8px;">
+                <button type="submit" class="btn w-100 text-start nav-link" style="color:#fca5a5;">
+                    <i class="bi bi-box-arrow-left"></i>Đăng xuất
+                </button>
+            </form>
+        </div>
+    </nav>
+</div>
+<div class="main-content">
+    <div class="topbar">
+        <div class="d-flex align-items-center gap-2">
+            <a href="/teacher/courses" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i></a>
+            <h6 class="mb-0 fw-bold" th:text="${course.title}">Khóa học</h6>
+        </div>
+        <div class="d-flex gap-2">
+            <a th:href="@{/teacher/courses/{id}/lessons/create(id=${course.id})}" class="btn btn-success btn-sm">
+                <i class="bi bi-plus me-1"></i>Thêm bài học
+            </a>
+            <a th:href="@{/teacher/courses/{id}/edit(id=${course.id})}" class="btn btn-outline-warning btn-sm">
+                <i class="bi bi-pencil me-1"></i>Sửa khóa học
+            </a>
+        </div>
+    </div>
+    <div class="content-area">
+        <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle me-2"></i><span th:text="${successMsg}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show">
+            <i class="bi bi-exclamation-triangle me-2"></i><span th:text="${errorMsg}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="row g-3">
+            <!-- Thông tin khóa học -->
+            <div class="col-lg-4">
+                <div class="card p-4">
+                    <div class="text-center mb-3" style="font-size:3.5rem;">📚</div>
+                    <h6 class="fw-bold text-center mb-2" th:text="${course.title}">Tên</h6>
+                    <p class="text-muted small text-center" th:text="${course.description ?: 'Chưa có mô tả'}">Mô tả</p>
+                    <hr>
+                    <div class="d-flex justify-content-between small mb-2">
+                        <span class="text-muted">Học sinh đăng ký</span>
+                        <strong th:text="${course.studentCount} + '/' + ${course.maxStudents}">0/100</strong>
+                    </div>
+                    <div class="d-flex justify-content-between small mb-2">
+                        <span class="text-muted">Số bài học</span>
+                        <strong th:text="${#lists.size(lessons)}">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between small mb-2">
+                        <span class="text-muted">Trạng thái</span>
+                        <span th:switch="${course.status.name()}">
+                            <span th:case="'ACTIVE'" class="badge bg-success">Hoạt động</span>
+                            <span th:case="'INACTIVE'" class="badge bg-secondary">Ẩn</span>
+                            <span th:case="'DRAFT'" class="badge bg-warning text-dark">Nháp</span>
+                        </span>
+                    </div>
+                    <hr>
+                    <a th:href="@{/teacher/courses/{id}/students(id=${course.id})}"
+                       class="btn btn-outline-success btn-sm w-100">
+                        <i class="bi bi-people me-1"></i>Xem danh sách học sinh
+                    </a>
+                </div>
+            </div>
+
+            <!-- Danh sách bài học -->
+            <div class="col-lg-8">
+                <div class="card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0">📋 Danh sách bài học</h6>
+                        <a th:href="@{/teacher/courses/{id}/lessons/create(id=${course.id})}"
+                           class="btn btn-success btn-sm">
+                            <i class="bi bi-plus me-1"></i>Thêm bài học
+                        </a>
+                    </div>
+
+                    <div th:each="lesson, stat : ${lessons}" class="lesson-item">
+                        <div class="lesson-num" th:text="${stat.index + 1}">1</div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small" th:text="${lesson.title}">Bài học</div>
+                            <div class="text-muted" style="font-size:.75rem;">
+                                <span th:if="${lesson.durationMinutes != null}">
+                                    <i class="bi bi-clock me-1"></i><span th:text="${lesson.durationMinutes}">0</span> phút
+                                </span>
+                                <span th:if="${lesson.videoUrl != null}" class="ms-2">
+                                    <i class="bi bi-camera-video text-danger"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <span th:if="${lesson.status.name() == 'PUBLISHED'}" class="badge bg-success">Published</span>
+                        <span th:if="${lesson.status.name() == 'DRAFT'}" class="badge bg-warning text-dark">Draft</span>
+                        <div class="d-flex gap-1">
+                            <a th:href="@{/teacher/courses/{cid}/lessons/{lid}/edit(cid=${course.id},lid=${lesson.id})}"
+                               class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
+                            <button class="btn btn-sm btn-outline-danger" onclick="confirmDeleteLesson(this)"
+                                    th:data-course="${course.id}" th:data-lesson="${lesson.id}"
+                                    th:data-title="${lesson.title}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(lessons)}" class="text-center py-4 text-muted">
+                        <i class="bi bi-journal-plus fs-2 d-block mb-2"></i>
+                        Chưa có bài học. <a th:href="@{/teacher/courses/{id}/lessons/create(id=${course.id})}">Thêm ngay!</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteLessonModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" style="border-radius:12px;">
+            <div class="modal-header border-0"><h6 class="modal-title fw-bold text-danger">⚠️ Xóa bài học</h6></div>
+            <div class="modal-body pt-0">Xóa bài học <strong id="lessonTitle"></strong>?</div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <form id="deleteLessonForm" method="post">
+                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function confirmDeleteLesson(btn) {
+    document.getElementById('lessonTitle').textContent = btn.dataset.title;
+    document.getElementById('deleteLessonForm').action =
+        '/teacher/courses/' + btn.dataset.course + '/lessons/' + btn.dataset.lesson + '/delete';
+    new bootstrap.Modal(document.getElementById('deleteLessonModal')).show();
+}
+</script>
+</body>
+</html>

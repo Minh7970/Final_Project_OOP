@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xem bài học</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body{background:#f1f5f9;font-family:'Segoe UI',sans-serif;}
+        .sidebar{width:260px;min-height:100vh;background:linear-gradient(180deg,#1e3a5f,#1d4ed8);position:fixed;top:0;left:0;z-index:100;}
+        .sidebar-brand{padding:1.5rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.1);}
+        .sidebar-brand h5{color:#fff;font-weight:700;margin:0;}
+        .sidebar-brand small{color:#bfdbfe;font-size:.75rem;}
+        .sidebar .nav-link{color:#dbeafe;padding:.65rem 1.2rem;border-radius:8px;margin:2px 8px;font-size:.9rem;}
+        .sidebar .nav-link:hover,.sidebar .nav-link.active{background:rgba(255,255,255,.15);color:#fff;}
+        .sidebar .nav-link i{width:20px;margin-right:8px;}
+        .sidebar-section{color:#93c5fd;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;padding:1rem 1.4rem .3rem;}
+        .main-content{margin-left:260px;min-height:100vh;}
+        .topbar{background:#fff;padding:.75rem 1.5rem;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:.75rem;position:sticky;top:0;z-index:99;}
+        .content-area{padding:1.5rem;}
+        .card{border:none;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+        .lesson-list-item{padding:.6rem 1rem;border-radius:8px;cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:.75rem;}
+        .lesson-list-item:hover{background:#eff6ff;}
+        .lesson-list-item.active{background:#dbeafe;}
+        .lesson-num-sm{width:24px;height:24px;border-radius:6px;background:#1d4ed8;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;flex-shrink:0;}
+        .video-frame{width:100%;aspect-ratio:16/9;border-radius:12px;background:#000;}
+        .lesson-content{line-height:1.8;color:#374151;}
+        .lesson-content h1,.lesson-content h2,.lesson-content h3{color:#1e293b;margin-top:1.5rem;}
+        .lesson-content p{margin-bottom:1rem;}
+        .btn-primary{background:#1d4ed8;border-color:#1d4ed8;border-radius:8px;}
+        .btn-primary:hover{background:#1e40af;}
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <h5><i class="bi bi-mortarboard-fill me-2"></i>OOP-PTIT</h5>
+        <small>👨‍🎓 Học sinh</small>
+    </div>
+    <nav class="nav flex-column pt-2">
+        <span class="sidebar-section">Tổng quan</span>
+        <a class="nav-link" href="/student/dashboard"><i class="bi bi-grid-1x2"></i>Dashboard</a>
+        <span class="sidebar-section">Khóa học</span>
+        <a class="nav-link" href="/student/courses"><i class="bi bi-search"></i>Tìm khóa học</a>
+        <a class="nav-link active" href="/student/my-courses"><i class="bi bi-bookmark-check"></i>Khóa học của tôi</a>
+        <div style="position:absolute;bottom:1rem;width:100%;">
+            <form th:action="@{/logout}" method="post" style="margin:0 8px;">
+                <button type="submit" class="btn w-100 text-start nav-link" style="color:#fca5a5;">
+                    <i class="bi bi-box-arrow-left"></i>Đăng xuất
+                </button>
+            </form>
+        </div>
+    </nav>
+</div>
+
+<div class="main-content">
+    <div class="topbar">
+        <a th:href="@{/student/courses/{id}(id=${course.id})}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div>
+            <div class="fw-bold small" th:text="${lesson.title}">Bài học</div>
+            <div class="text-muted" style="font-size:.75rem;" th:text="${course.title}">Khóa học</div>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <div class="row g-3">
+            <!-- Nội dung bài học -->
+            <div class="col-lg-8">
+                <div class="card p-4">
+                    <!-- Video nếu có -->
+                    <div th:if="${lesson.videoUrl != null and !#strings.isEmpty(lesson.videoUrl)}" class="mb-4">
+                        <iframe class="video-frame"
+                                th:src="${lesson.videoUrl}"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen></iframe>
+                    </div>
+
+                    <h4 class="fw-bold mb-1" th:text="${lesson.title}">Tiêu đề bài học</h4>
+                    <div class="d-flex gap-3 text-muted small mb-4">
+                        <span th:if="${lesson.durationMinutes != null}">
+                            <i class="bi bi-clock me-1"></i><span th:text="${lesson.durationMinutes}">0</span> phút
+                        </span>
+                        <span><i class="bi bi-journals me-1"></i>Bài <span th:text="${#lists.indexOf(allLessons, lesson) + 1}">1</span>/<span th:text="${#lists.size(allLessons)}">1</span></span>
+                    </div>
+
+                    <div class="lesson-content" th:utext="${lesson.content ?: 'Chưa có nội dung cho bài học này.'}">
+                        Nội dung
+                    </div>
+
+                    <!-- Điều hướng bài học -->
+                    <hr class="mt-4">
+                    <div class="d-flex justify-content-between">
+                        <div th:with="idx=${#lists.indexOf(allLessons, lesson)}">
+                            <a th:if="${idx > 0}"
+                               th:href="@{/student/courses/{cid}/lessons/{lid}(cid=${course.id},lid=${allLessons[idx-1].id})}"
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-arrow-left me-1"></i>Bài trước
+                            </a>
+                        </div>
+                        <div th:with="idx=${#lists.indexOf(allLessons, lesson)}">
+                            <a th:if="${idx < #lists.size(allLessons) - 1}"
+                               th:href="@{/student/courses/{cid}/lessons/{lid}(cid=${course.id},lid=${allLessons[idx+1].id})}"
+                               class="btn btn-primary btn-sm">
+                                Bài tiếp theo <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                            <a th:if="${idx == #lists.size(allLessons) - 1}"
+                               th:href="@{/student/courses/{id}(id=${course.id})}"
+                               class="btn btn-success btn-sm">
+                                <i class="bi bi-trophy me-1"></i>Hoàn thành!
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danh sách bài học -->
+            <div class="col-lg-4">
+                <div class="card p-3">
+                    <h6 class="fw-bold mb-3">📋 Nội dung khóa học</h6>
+                    <div th:each="l, stat : ${allLessons}"
+                         class="lesson-list-item"
+                         th:classappend="${l.id == lesson.id} ? ' active'">
+                        <div class="lesson-num-sm" th:text="${stat.index + 1}">1</div>
+                        <div class="flex-grow-1">
+                            <a th:href="@{/student/courses/{cid}/lessons/{lid}(cid=${course.id},lid=${l.id})}"
+                               class="text-decoration-none text-dark">
+                                <div class="small fw-semibold" th:text="${l.title}">Bài học</div>
+                                <div class="text-muted" style="font-size:.72rem;" th:if="${l.durationMinutes != null}">
+                                    <i class="bi bi-clock me-1"></i><span th:text="${l.durationMinutes}">0</span> phút
+                                </div>
+                            </a>
+                        </div>
+                        <i th:if="${l.id == lesson.id}" class="bi bi-play-circle-fill text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
