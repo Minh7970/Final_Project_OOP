@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tìm khóa học - Học sinh</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body{background:#f1f5f9;font-family:'Segoe UI',sans-serif;}
+        .sidebar{width:260px;min-height:100vh;background:linear-gradient(180deg,#1e3a5f,#1d4ed8);position:fixed;top:0;left:0;z-index:100;}
+        .sidebar-brand{padding:1.5rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.1);}
+        .sidebar-brand h5{color:#fff;font-weight:700;margin:0;}
+        .sidebar-brand small{color:#bfdbfe;font-size:.75rem;}
+        .sidebar .nav-link{color:#dbeafe;padding:.65rem 1.2rem;border-radius:8px;margin:2px 8px;font-size:.9rem;}
+        .sidebar .nav-link:hover,.sidebar .nav-link.active{background:rgba(255,255,255,.15);color:#fff;}
+        .sidebar .nav-link i{width:20px;margin-right:8px;}
+        .sidebar-section{color:#93c5fd;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;padding:1rem 1.4rem .3rem;}
+        .main-content{margin-left:260px;min-height:100vh;}
+        .topbar{background:#fff;padding:.75rem 1.5rem;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99;}
+        .content-area{padding:1.5rem;}
+        .course-card{background:#fff;border:none;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);transition:transform .2s,box-shadow .2s;height:100%;}
+        .course-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.12);}
+        .course-thumb{height:140px;border-radius:12px 12px 0 0;background:linear-gradient(135deg,#1d4ed8,#6366f1);display:flex;align-items:center;justify-content:center;font-size:3rem;}
+        .search-bar{background:linear-gradient(135deg,#1e3a5f,#1d4ed8);border-radius:16px;padding:2rem;}
+        .form-control{border-radius:10px;border:none;padding:.75rem 1rem;font-size:.95rem;}
+        .form-control:focus{box-shadow:0 0 0 3px rgba(255,255,255,.3);}
+        .btn-light{border-radius:10px;font-weight:600;}
+        .btn-primary{background:#1d4ed8;border-color:#1d4ed8;border-radius:8px;}
+        .btn-primary:hover{background:#1e40af;}
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <h5><i class="bi bi-mortarboard-fill me-2"></i>OOP-PTIT</h5>
+        <small>👨‍🎓 Học sinh</small>
+    </div>
+    <nav class="nav flex-column pt-2">
+        <span class="sidebar-section">Tổng quan</span>
+        <a class="nav-link" href="/student/dashboard"><i class="bi bi-grid-1x2"></i>Dashboard</a>
+        <span class="sidebar-section">Khóa học</span>
+        <a class="nav-link active" href="/student/courses"><i class="bi bi-search"></i>Tìm khóa học</a>
+        <a class="nav-link" href="/student/my-courses"><i class="bi bi-bookmark-check"></i>Khóa học của tôi</a>
+        <div style="position:absolute;bottom:1rem;width:100%;">
+            <form th:action="@{/logout}" method="post" style="margin:0 8px;">
+                <button type="submit" class="btn w-100 text-start nav-link" style="color:#fca5a5;">
+                    <i class="bi bi-box-arrow-left"></i>Đăng xuất
+                </button>
+            </form>
+        </div>
+    </nav>
+</div>
+
+<div class="main-content">
+    <div class="topbar">
+        <h6 class="mb-0 fw-bold">🔍 Tìm kiếm khóa học</h6>
+    </div>
+    <div class="content-area">
+
+        <!-- Search Banner -->
+        <div class="search-bar mb-4">
+            <h5 class="text-white fw-bold mb-1">Tìm khóa học phù hợp với bạn</h5>
+            <p class="text-white-50 small mb-3">Tìm theo tên khóa học hoặc tên giáo viên</p>
+            <form action="/student/courses" method="get" class="d-flex gap-2">
+                <input type="text" name="keyword" class="form-control flex-grow-1"
+                       placeholder="Nhập tên khóa học hoặc tên giáo viên..."
+                       th:value="${keyword}">
+                <button type="submit" class="btn btn-light px-4 fw-semibold">
+                    <i class="bi bi-search me-1"></i>Tìm
+                </button>
+                <a href="/student/courses" class="btn btn-outline-light px-3">
+                    <i class="bi bi-x"></i>
+                </a>
+            </form>
+        </div>
+
+        <!-- Kết quả tìm kiếm -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0">
+                <span th:if="${keyword != null and !#strings.isEmpty(keyword)}">
+                    Kết quả cho "<span th:text="${keyword}" class="text-primary"></span>":
+                    <span th:text="${#lists.size(courses)}" class="text-primary"></span> khóa học
+                </span>
+                <span th:unless="${keyword != null and !#strings.isEmpty(keyword)}">
+                    📚 Tất cả khóa học (<span th:text="${#lists.size(courses)}">0</span>)
+                </span>
+            </h6>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-4 col-lg-3" th:each="course : ${courses}">
+                <div class="course-card">
+                    <div class="course-thumb">📚</div>
+                    <div class="p-3">
+                        <h6 class="fw-bold mb-1 text-truncate" th:text="${course.title}">Khóa học</h6>
+                        <p class="text-muted small mb-2 text-truncate"
+                           th:text="${course.description ?: 'Chưa có mô tả'}">Mô tả</p>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <div style="width:24px;height:24px;border-radius:50%;background:#059669;color:#fff;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;"
+                                 th:text="${#strings.substring(course.teacher.fullName,0,1)}">T</div>
+                            <span class="small fw-semibold" th:text="${course.teacher.fullName}">GV</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted small mb-3">
+                            <span><i class="bi bi-people me-1"></i><span th:text="${course.studentCount}">0</span> học sinh</span>
+                            <span><i class="bi bi-journals me-1"></i><span th:text="${course.lessonCount}">0</span> bài</span>
+                        </div>
+                        <a th:href="@{/student/courses/{id}(id=${course.id})}"
+                           class="btn btn-primary btn-sm w-100">
+                            <i class="bi bi-eye me-1"></i>Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(courses)}" class="col-12 text-center py-5 text-muted">
+                <i class="bi bi-search fs-1 d-block mb-2"></i>
+                <span th:if="${keyword != null}">Không tìm thấy khóa học nào với từ khóa "<strong th:text="${keyword}"></strong>"</span>
+                <span th:unless="${keyword != null}">Chưa có khóa học nào</span>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

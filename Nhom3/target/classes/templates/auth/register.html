@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - OOP-PTIT</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4f46e5 100%);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Segoe UI', sans-serif; padding: 2rem 0;
+        }
+        .register-card {
+            background: #fff; border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            width: 100%; max-width: 480px;
+            overflow: hidden;
+        }
+        .register-header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            padding: 1.75rem 2rem; text-align: center;
+        }
+        .register-header h4 { color: #fff; font-weight: 700; margin: 0.5rem 0 0; }
+        .register-header p { color: #c4b5fd; margin: 0; font-size: 0.85rem; }
+        .register-body { padding: 1.75rem 2rem; }
+        .form-control, .form-select {
+            border-radius: 10px; border: 2px solid #e2e8f0;
+            padding: 0.65rem 1rem; font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+        }
+        .btn-register {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border: none; border-radius: 10px; padding: 0.7rem;
+            font-weight: 600; color: #fff;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79,70,229,0.4);
+            color: #fff;
+        }
+        .role-option { border: 2px solid #e2e8f0; border-radius: 10px; padding: 0.75rem; cursor: pointer; transition: all .2s; }
+        .role-option:hover { border-color: #4f46e5; background: #f5f3ff; }
+        .role-option input:checked ~ .role-label { color: #4f46e5; }
+        .form-check-input:checked { background-color: #4f46e5; border-color: #4f46e5; }
+    </style>
+</head>
+<body>
+<div class="register-card">
+    <div class="register-header">
+        <div style="font-size:2.5rem;">🎓</div>
+        <h4>Đăng ký tài khoản</h4>
+        <p>Đăng ký tài khoản học viên / giảng viên</p>
+    </div>
+    <div class="register-body">
+
+        <div th:if="${errorMsg}" class="alert alert-danger py-2 small">
+            <i class="bi bi-exclamation-triangle me-1"></i><span th:text="${errorMsg}"></span>
+        </div>
+        <div th:if="${successMsg}" class="alert alert-success py-2 small">
+            <i class="bi bi-check-circle me-1"></i><span th:text="${successMsg}"></span>
+        </div>
+
+        <form th:action="@{/register}" method="post" th:object="${userForm}">
+
+            <!-- VAI TRÒ -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold small text-secondary">ĐĂNG KÝ VỚI TƯ CÁCH</label>
+                <div class="d-flex gap-2">
+                    <label class="role-option flex-fill text-center">
+                        <input type="radio" th:field="*{role}" value="STUDENT" class="form-check-input me-1">
+                        <span class="d-block" style="font-size:1.5rem;">👨‍🎓</span>
+                        <span class="small fw-semibold">Học sinh</span>
+                    </label>
+                    <label class="role-option flex-fill text-center">
+                        <input type="radio" th:field="*{role}" value="TEACHER" class="form-check-input me-1">
+                        <span class="d-block" style="font-size:1.5rem;">👨‍🏫</span>
+                        <span class="small fw-semibold">Giáo viên</span>
+                    </label>
+                </div>
+                <div th:if="${#fields.hasErrors('role')}" class="text-danger small mt-1" th:errors="*{role}"></div>
+            </div>
+
+            <!-- HỌ TÊN -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold small">Họ và tên <span class="text-danger">*</span></label>
+                <input type="text" th:field="*{fullName}" class="form-control"
+                       th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'"
+                       placeholder="Nhập họ và tên đầy đủ...">
+                <div class="invalid-feedback" th:errors="*{fullName}"></div>
+            </div>
+
+            <div class="row g-2 mb-3">
+                <!-- USERNAME -->
+                <div class="col-6">
+                    <label class="form-label fw-semibold small">Username <span class="text-danger">*</span></label>
+                    <input type="text" th:field="*{username}" class="form-control"
+                           th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'"
+                           placeholder="vd: nguyen_a">
+                    <div class="invalid-feedback" th:errors="*{username}"></div>
+                </div>
+                <!-- SĐT -->
+                <div class="col-6">
+                    <label class="form-label fw-semibold small">Số điện thoại</label>
+                    <input type="text" th:field="*{phone}" class="form-control" placeholder="0901234567">
+                </div>
+            </div>
+
+            <!-- EMAIL -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold small">Email <span class="text-danger">*</span></label>
+                <input type="email" th:field="*{email}" class="form-control"
+                       th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+                       placeholder="email@example.com">
+                <div class="invalid-feedback" th:errors="*{email}"></div>
+            </div>
+
+            <!-- MẬT KHẨU -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold small">Mật khẩu <span class="text-danger">*</span></label>
+                <input type="password" th:field="*{password}" class="form-control"
+                       th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'"
+                       placeholder="Ít nhất 6 ký tự...">
+                <div class="invalid-feedback" th:errors="*{password}"></div>
+            </div>
+
+            <button type="submit" class="btn btn-register w-100 mb-3">
+                <i class="bi bi-person-plus me-2"></i>Đăng ký ngay
+            </button>
+
+            <div class="text-center small text-muted">
+                Đã có tài khoản?
+                <a href="/login" class="text-primary fw-semibold text-decoration-none">Đăng nhập</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
